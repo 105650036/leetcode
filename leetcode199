@@ -1,0 +1,38 @@
+取得一個樹最右邊的數字
+
+Input: [1,2,3,null,5,null,4]
+Output: [1, 3, 4]
+Explanation:
+
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+
+Definition for a binary tree node.
+class TreeNode:
+     def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+class Solution:
+    def rightSideView(self, root: TreeNode) -> List[int]:
+        if not root:  如果沒東西就回傳空的
+            return []
+        
+        results=[root.val] 
+        now=[root]
+        while now:
+            next_level = []  每一個階層刷新一次
+            for node in now:
+                if node.left:   看有沒有左節點
+                    next_level.append(node.left)
+                if node.right: 看有沒有右結點
+                    next_level.append(node.right)
+            if next_level: 如果本層有子結點就取存起來最後一個
+                results.append(next_level[-1].val)
+            now = next_level 去下個階層
+        
+        return results
+本身要做的是就是找每一層 並找到最右邊的點即可 
