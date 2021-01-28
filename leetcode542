@@ -1,0 +1,25 @@
+題目 給一個只有0跟1的矩陣 結果的矩陣元素 需為原矩陣元素梨最近的0的距離 (若自己是則為0)
+
+一開始我的想法是用0去決定1的數值每一個0更新一次 但後來發現一樣的做法由1去找0只要一次就可以確定數值因此改用此方法(BFS)
+
+
+class Solution:
+    def updateMatrix(self, matrix: List[List[int]]) -> List[List[int]]:
+        r=len(matrix) 要把給個點跑完需要找到行跟列的數目
+        c=len(matrix[0])
+        def bfs(mx,a,b):   主要函式
+            st=[[a,b,0]]   a,b為當前位置 0則是距離
+            while st:
+                m,n,s=st.pop(0)    
+                if mx[m][n]==0:   找到0就結束
+                    mx[a][b]=s 
+                    return 0         
+                for x,y in [(0,1),(0,-1),(1,0),(-1,0)]: 每個點朝上下左右去尋找 廣度優先
+                    j=m+x
+                    k=n+y
+                    if 0<=j<r and 0<=k<c: st.append([j,k,s+1])
+        for i in range(0,r):  跑每個點
+            for j in range(0,c):
+                if matrix[i][j]==1:
+                    bfs(matrix,i,j)
+        return matrix    
