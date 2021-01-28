@@ -1,0 +1,25 @@
+題目 給一組數值及一組標籤使得標籤的總數ex標籤1不超過use_limit 建立在此基礎上選出num_wanted數量的數字使總和最大
+
+Input: values = [5,4,3,2,1], labels = [1,1,2,2,3], num_wanted = 3, use_limit = 1
+Output: 9
+Explanation: The subset chosen is the first, third, and fifth item.
+一開始的寫法是想說每次都找最大值所以使用max函數 但後來發現會超時所以想到更快的方法就是把題目的數組排序 這樣可以確定數組第一個(或最後一個)是最大的節省搜尋時間
+找完後再確認有沒有超過標籤限制
+
+class Solution:
+    def largestValsFromLabels(self, values: List[int], labels: List[int], num_wanted: int, use_limit: int) -> int:
+        if len(values)==1:     如果只有一個值就直接回復
+            return values[0]
+        maxmun=0
+        Rlabels=[0 for _ in range(max(labels)+1)] 創造一個紀錄標籤的陣列
+        values,labels=(list(x) for x in zip(*sorted(zip(values,labels),reverse = True))) 使用zip涵式把value跟label綁在一起排序
+        while num_wanted!=0 and values:    再找沒找完數組及沒找完數量前繼續找
+            max_index=values.index(values[0])  每次都找弟一個
+            
+            if Rlabels[labels[max_index]]<use_limit:  從紀錄標籤的陣列尋找是否還符合題目
+                maxmun+=values[max_index]          找到就把數值加上去目標數減一 標籤加一
+                num_wanted-=1
+                Rlabels[labels[max_index]]+=1
+            del values[0]  把找完的刪掉
+            del labels[0]
+        return maxmun 
