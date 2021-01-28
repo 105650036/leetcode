@@ -1,0 +1,55 @@
+題目給予一數組arr及距離d 使得arr中每個點去尋找可跳躍的最多次數 且規則入下 最遠可以跳到arr[i+d] 及arr[i-d] 但中間只要有值大於等於i就不能在過去
+以以上的限制找出可跳的最多次數
+本提的標籤為 dp
+一開始想的就是 每一次每個點都找符合題目的範圍去看有沒有更新 到最後沒有辦法再更新就是答案
+
+before=[]     
+now=[0 for i in range(len(arr))]  創造兩個陣列一個紀錄當前一個紀錄上一輪的
+def checkl(n,d):       按照題義去檢查左邊的可走極限
+    maxl=n
+    for i in range(n-1,n-d-1,-1):
+        if i>=0:
+            if arr[i]>=arr[n]:
+                return maxl
+            maxl=i   
+    return maxl             
+def checkr(n,d):      按照題義去檢查右邊的可走極限
+    maxr=n
+    for i in range(n+1,n+d+1):
+        if n+d<len(arr):
+            if arr[i]>=arr[n]:
+                return maxr
+            maxr=i
+    return maxr    
+
+while before!=now:     確認是否可以更新
+    before=now[:]      用非參考而是複製的方式複製上一輪的結果
+    for i in range(len(arr)):    對每個點做運算
+        r=checkr(i,d)           確認左右極限
+        l=checkl(i,d)
+        cmax=0                  對每個點做更新的運算
+        for k in range(l,r+1):
+            if k!=i:      且要避免算到自己
+                cmax=max(cmax,before[k])    看有沒有辦法更新
+        now[i]=max(now[i],1+cmax)    
+return max(now)                      最後看最大值
+
+但很不幸的這個方法有問題 在第51題的時候錯了 答案只差1
+且經過檢查 及去看別人的想法之後仍找不到問題點
+但有從別人的想法中學習到一些經驗以下為他的程式碼
+
+def maxJumps(arr, d) -> int:
+        n = len(arr)
+        @lru_cache(None) 此處使用沒看過的函數經查詢得知是把每次遞迴的內容做紀錄 使得不用每次都重算 (不然會超時)
+        def dfs(i):
+            x = 0
+            for j in range(i + 1, min(i + d + 1, n)):   首先在此處比我好的方法是 不再需要用if判斷是否出界 直接用min函數取代
+                if arr[i] <= arr[j]: break
+                x = max(x, dfs(j))
+            for j in range(i - 1, max(0, i - d) -1, -1):  如右界線一樣
+                if arr[i] <= arr[j]: break 
+                x = max(x, dfs(j))
+            return 1 + x
+        return max(dfs(i) for i in range(n))  
+
+可以觀察到他使用更少的程式碼且減少在表面上的運算 讓有遞迴觀念的人能夠輕易讀懂 並了解想法        
