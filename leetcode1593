@@ -1,0 +1,23 @@
+題目: 給予一字串 找到一數字n為此字串分為子字串且彼此不重複的最大數目
+ex:
+Input: s = "ababccc"
+Output: 5
+Explanation: One way to split maximally is ['a', 'b', 'ab', 'c', 'cc']. Splitting like ['a', 'b', 'a', 'b', 'c', 'cc'] is not valid as you have 'a' and 'b' multiple times.
+
+一開始在沒看主題前有寫出一個算法 但遇到一次錯誤 而且本身用人工檢查也沒看出來哪裡不對
+因此去參考相關主題 發現是backtracing 也就是說這個題目應該是沒辦法用算法算出來只能用暴力法 並設定回碩點
+
+def maxUniqueSplit(self,s: str) -> int:
+        def fn(i, find=set()):       設定回碩點 也就是有沒有找過 
+            ans = 0                  
+            if i < len(s):
+                for ii in range(i+1, len(s)+1):   利用暴力法不斷尋找
+                    if s[i:ii] not in find:       發現不合題義即跳過
+                        find.add(s[i:ii])         把找到合法的丟進去
+                        ans = max(ans, 1 + fn(ii, find))  最後去比較有沒有比現在最大值大
+                        find.remove(s[i:ii])
+            return ans 
+             
+        return fn(0)
+        
+題目本身不算太難 最直觀的寫法也可以完成 但感覺回朔點可以多一點 例如判斷當下剩餘字串 有沒有辦法做出大於max的總數        
