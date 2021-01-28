@@ -1,0 +1,25 @@
+題目 給予一陣列arr及起點start 當你在任異點i上你可以選擇走向i+arr[i]或i-arr[i] 如果走到任何一點 i使得arr[i]=0則回傳true 否則回傳false
+這一題的標籤是dfs 及bfs 還有遞迴 我選擇使用dfs的方式去尋找 要注意的點就是需要去紀錄走過的點 並非像老鼠走迷宮一樣走到底就有解 因為如果過程有迴圈例如1 ->3 ->5 ->1 這樣就會跑不完
+然後要注意的就是判別答案跟紀錄
+
+def canReach(self, arr: List[int], start: int) -> bool:
+        def jumpfrom(i,visited=[]):  函數本身只接收一個參數就是起點 透過設定初始的方式來創造一個紀錄走過的路的陣列
+            if arr[i]==0:     一開始的點是0就可以直接返回
+                return True
+            if i in visited:    如果走到走過的點就返回失敗
+                return False
+            else :                   
+                visited.append(i)         確認沒走過就紀錄起來
+            if i+arr[i]<len(arr):         走加的路徑且要確認沒有超過陣列大小
+                ans1=jumpfrom(i+arr[i])   讓遞迴去確認
+                if ans1==True:            如果最後回傳true就直接回傳
+                    return True
+            if i-arr[i]>=0:               走減的路徑 確認不會超過陣列邊界
+                ans2=jumpfrom(i-arr[i])   跟加一樣的確認方式
+                if ans2==True:
+                    return True
+                
+            return False                  都跑完了沒答案就回傳失敗
+        return  jumpfrom(start)           回傳起始點的答案
+        
+中間遇到的困難就是判斷是否是true有出現狀況以及一開始有提到的無限迴圈的狀況 但一一排除後就完成了        
