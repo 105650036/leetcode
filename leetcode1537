@@ -1,0 +1,60 @@
+題目:給予兩個數組,可以從數組1或2出發若遇到數組1和2都有的數字可以跳到另一個數組 找到一路線使得遇到的數字和最大並回傳
+
+一開始看到相關主題是DP的時候有一點意外 因為腦中第一個想法是找到兩個數組中都有的數 比較第k到k+1個都有的數字中的路線哪個大就走哪個
+
+class Solution:
+    def maxSum(self, nums1: List[int], nums2: List[int]) -> int:
+        n1=0
+        n2=0
+        ans=0
+        common=[]
+        def arraysum(arr,n1,n2): 寫一個計算和的函數
+            temp=0
+            for i in range(n1,n2):
+                temp+=arr[i]
+            return temp   
+      
+        for i in nums1:
+            if i in nums2:       找共有數
+                common.append(i)
+        if common==[]:
+            return max(sum(nums1),sum(nums2))%(pow(10,9)+7)
+        for i in common:         最後用一開始敘述的方式去做找解的動作
+            n12=nums1.index(i)
+            n22=nums2.index(i)
+            ans+=max(arraysum(nums1,n1,n12),arraysum(nums2,n2,n22))
+            n1=n12
+            n2=n22
+        ans+=max(arraysum(nums1,n1,len(nums1)),arraysum(nums2,n2,len(nums2)))
+        return ans%(pow(10,9)+7)
+但結果並不好在79/82的時候超時了 於是尋找別人的寫法(想法和我相同的)
+
+class Solution:
+    def maxSum(self, nums1: List[int], nums2: List[int]) -> int:
+        M, N = len(nums1), len(nums2)
+        sum1, sum2 = 0, 0
+        i, j = 0, 0
+        res = 0
+        while i < M and j < N:
+            if nums1[i] < nums2[j]:    這邊他很好的利用題目給的特性 這兩個數組中的數字都是嚴格遞增 所以他只需要設兩個指標表示當前位置 一直比較直到找到相同值為止 順便做相加的動作
+                sum1 += nums1[i]
+                i += 1
+            elif nums1[i] > nums2[j]:
+                sum2 += nums2[j]
+                j += 1
+            else:                     找到相同值就看要選走哪條路並歸0
+                res += max(sum1, sum2) + nums1[i]
+                i += 1
+                j += 1
+                sum1 = 0
+                sum2 = 0
+                
+        while i < M:                  處理最後一個相同數到最尾端的部分
+            sum1 += nums1[i]
+            i += 1
+        while j < N:
+            sum2 += nums2[j]
+            j += 1
+        return (res + max(sum1, sum2)) % 1000000007
+
+可以觀察到差異在於遇到可以一起做的事情我沒有想到可以一起做 但他想到了導致速度上的差異
