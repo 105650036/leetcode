@@ -1,0 +1,45 @@
+題目 給一個數組nums及一數字m 使得數組nums分成m組後每一組的數字和都小於n且使n最小
+此題有兩個標記dp 跟 binary search
+一開始用dp的方法其實並不難 只要用第一個數字到n分成m-1組的最小 跟n到當前所在值的和的值做比較就可以了
+但是程式寫法上應該有可改進之處 因為跑到最後一題時 超時了 但並沒有什麼改進的方法的想法 所以決定去採用binary search的方法
+
+class Solution:
+    def splitArray(self, nums: List[int], m: int) -> int:
+        n = len(nums)  
+        dp = [[float('inf') for j in range(m+1)] for i in range(n+1)] 創造一個 n*m 分組數*數字數
+        sum1 = [0]*(n+1) 
+        for i in range(0,n):
+            sum1[i+1] = sum1[i]+nums[i]  計算從第1個數到第n個數的總和
+    
+        dp[0][0]=0    
+        for i in range(1,n+1):
+            for j in range(1,m+1):
+                for k in range(0,i):
+                    dp[i][j]=min(dp[i][j],max(dp[k][j-1],sum1[i]-sum1[k]))  採取一開始的說法 1到k分j-1組 k到i為一組 做比較來完成表格
+        return dp[n][m]
+        
+ 一開始我完全沒有想法這種題目要怎麼用 binary search 所以去看了一下別人的想法 這個部分使我受益良多 沒想到可以這樣用
+ 簡單而言binary search 的終止條件是左等於右所以只要不符合就可以繼續跑 而不是原本的比較是否值等於要的數字
+ 想法是這樣 值一定在整個數組的和到數組中最大的值中 所以以這個為範圍 以分完的組數量跟m比較分太多代表值太小 分太少(或相等且右大於左)代表值太大
+ 
+ class Solution:
+    def splitArray(self, nums, m):
+        left,right=max(nums),sum(nums)  設定左及右
+        def check(mid):
+            count=1
+            temp=0
+            for i in nums:     檢查某組數組內容是否大於mid 因為目標是mid
+                if temp+i>mid:
+                    temp=0
+                    count+=1   
+                temp=temp+i
+            return count<=m 
+        while right>left:  做敘述的判斷
+            mid=left+(right-left)//2   
+            if check(mid):
+                right=mid    
+            else:
+                left=mid+1
+        return  right
+ 這個題目真的很有趣也讓我了解兩件事 1 dp是很棒的的方法 但是要占用大量的空間 及時間 也就是說若不是真的沒辦法 不然可以嘗試用別的方法看看
+ 2 二元搜尋法 只要有範圍及判定條件都是可以應用而不是單純找數字
