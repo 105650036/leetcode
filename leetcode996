@@ -1,0 +1,33 @@
+題目 給一個陣列 尋找排列數使得此陣列的A[i]與A[i+1]或A[i-1]的和皆為完全平方數
+Input: [1,17,8]
+Output: 2
+Explanation: 
+[1,8,17] and [17,8,1] are the valid permutations.
+
+class Solution:
+    def numSquarefulPerms(self, A: List[int]) -> int:
+        def search(SA:list,choice:int):    傳入欲尋找的陣列及目前的數字 (由於i-1在前面已驗證 之後都只續驗證其他數)
+            SA2=SA[:]                      此部分一開始寫法為SA2=SA但發現python是參考物件 需用強複製或弱複製的方法 此為弱複製
+            del SA2[SA2.index(choice)]     把目前選到的從陣列中移除
+            hash2=[]                       hash2 未避免以下狀況出現[2,2,2]會在選完一個2之後把[2,2]視為兩組 
+            if SA2:                        如果還有可以選的數
+                count=0                    定義當前方法數為0
+                for sa in SA2:
+                    if sa not in hash2:    確定當前所選擇的數沒被選過
+                        if (choice+sa)**0.5==int((choice+sa)**0.5):  按照提議判斷
+                            hash2.append(sa)                         選到就加入hash2
+                            count+=search(SA2,sa)                    最後去搜尋被選到的數
+                return count        
+            else:              若選完回傳1
+                return 1
+        ans=0
+        hash1=[]  hash1功能同 hash2只是用再決定第一個數
+        for a in A:
+            if a not in hash1:
+                ans+=search(A,a)   把所有不重複元素都跑一次取得其函數回傳總和
+                hash1.append(a)
+        return ans   
+        
+        
+        
+        題目本身我認為還好但重點是要有去避免重複選取的機制 及簡單的演算法概念
