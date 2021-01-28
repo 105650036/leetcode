@@ -1,0 +1,21 @@
+O(1/(n+1)*c(2n,n))卡特蘭數
+backtracking
+題目:到一定數x前 左括號數大於等於右括號數
+
+此題目可以在離散數學中看到 因此只要用合法方法判斷 即可完成
+
+python3 
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        result=[]
+        def backtrack(left,right,now):
+            
+            if len(now)==2*n: ###總數為2n左右括號各半 可用下面的函數保證
+                result.append(now)
+            else:   
+                    if left<n : ###如果左括號的數量沒超過n也就是總長一半可以添加左括號
+                        backtrack(left+1,right,now+"(")
+                    if left>right : ###如果右括號比左括號少可添加右括號
+                        backtrack(left,right+1,now+")")
+        backtrack(0,0,"")           
+        return result
