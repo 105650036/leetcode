@@ -1,0 +1,44 @@
+題目 給一個數字v及層數d使得層數d上的非null節點都改為v且原本的左右節點變為此改變後的節點的左或右節點(若改變的節點為右節點就為右)
+原本是考慮用把每一次的一層的所有節點記下來但後來發現我的目標只有目標層數的節點 前面層數的節點其實無所謂且這樣要多花時間在記錄 還有紀錄的空間上
+所以最後變成以找到目標層數為目的的寫法
+Input: 
+A binary tree as following:
+       4
+     /   \
+    2     6
+   / \   / 
+  3   1 5   
+
+v = 1
+
+d = 2
+
+Output: 
+       4
+      / \
+     1   1
+    /     \
+   2       6
+  / \     / 
+ 3   1   5   
+ 
+ # Definition for a binary tree node.   此部分為題目給的資料結構
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def addOneRow(self, root: TreeNode, v: int, d: int) -> TreeNode:
+        if d==1:    考慮邊界 若層數為1則建造一個新節點 此節點數值為v左節點為原本的數根
+            return TreeNode(v,root)
+        target = d - 1  設定目標層數 為題目給的層數減一 好對下一層去做演算
+        def dfs(n,x):   
+            if n:
+                if x == target:   如果到達目標層數
+                    n.left, n.right = TreeNode(v,n.left,None), TreeNode(v,None,n.right) 如題目敘述去創造及連接節點
+                elif x < target: 如果還沒到 就左右節點繼續下去找
+                    dfs(n.left,x+1)
+                    dfs(n.right,x+1)
+        dfs(root,1) 放入根及層數
+        return root
