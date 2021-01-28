@@ -1,0 +1,19 @@
+題目 給一數列想像每一個數字n為高為n的柱子 取其中兩個柱子當兩邊加上底 使其類似一水槽 求此數列中水槽最大容量(面積)
+一開始想到的就是暴力解也就是O(n^2) 但仔細觀察題目可以發現其實是考數學而不是程式寫法
+此題可以簡化為 面積=兩柱長中短柱*兩柱距離
+也就是說我們若能從這兩個變數中找到其中一個變數的最大值開始往回測試可以有效減少工作量
+明顯的兩柱長中短柱不易找到最適合的值 因為取決於你取哪兩個柱子 且若鎖定一柱子假設去最高柱 不一定能找到面積最大值
+但若是取距離最遠就是第一根根最後一根就可以簡單的去比較最大面積 =>兩根中取短的往內一格*(距離-1) 跟保留的最大值比較 即可 
+
+class Solution:
+    def maxArea(self, height:int) -> int:
+        maxA=(len(height)-1)*min(height[0],height[-1])
+        start=0
+        end=len(height)-1
+        while start!=end:
+            if height[start]>=height[end]:
+                end=end-1
+            else :
+                start=start+1
+            maxA=max(maxA,min(height[start],height[end])*(end-start))
+        return maxA
