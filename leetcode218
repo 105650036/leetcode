@@ -1,0 +1,91 @@
+題目:給一組陣列 每個元素也是陣列 有三個元素 分別是起點 終點 高度 尋找天際線的交錯點
+
+ex:
+Input: buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+Output: [[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]
+
+一開始使用比較直覺的方式寫 也就是從第一個點開始掃掃到最後一個點 但很可惜超時了(在預料內)
+尤其是中間很多的狀況(同起點 水平高度一樣) 我一開始都沒考慮進去 這是欠缺的部分 以目前的完程度 case1-11皆通過 case12超時 我認為我的想法沒有錯 
+但很明顯可以顧慮到更多狀況來完成程式 以下是我一開始的寫法
+
+class Solution:
+    def getSkyline(self, b: List[List[int]]) -> List[List[int]]:
+        if len(b)==1:
+            return [[b[0][0],b[0][2]],[b[0][1],0]]
+        nowp=0
+        nowh=0
+        nowe=0
+        ans=[]
+        def check(i):  #找往下的最高
+            ansm=0
+            ansi=0
+            for k in range(len(b)):
+                if b[k][0]<=i and b[k][1]>i and b[k][2]>ansm:
+                    ansm=b[k][2]
+                    ansi=k
+            return ansm , ansi
+        def nextp(x):   #用於走到底後確認下一個往上爬的點
+            for i in range(len(b)):
+                if b[i][0]>x:
+                    return i
+            return len(b)-1  
+        def checksx(p):
+            ansmax=0
+            anse=0
+            ansp=0
+            for i in range(len(b)):
+                if b[i][0]==p:
+                    ansp=i
+                    if b[i][2]>ansmax:
+                        ansmax=b[i][2]
+                        anse=i
+            return  ansp , ansmax , anse           
+        for i in range(0,b[-1][1]+1):
+            if nowp>(len(b)-1):
+                ans.append([nowe,0])
+                return ans
+            if i==b[nowp][0] and nowh<b[nowp][2]:  #碰到更高的往上爬
+                tempans=checksx(i)
+                nowh=tempans[1]
+                nowe=b[tempans[2]][1]
+                nowp=tempans[0]+1
+                ans.append([i,nowh])
+            if i==nowe and i!=0:  #走到底
+                nowe=b[check(i)[1]][1]
+                if check(i)[0]!=nowh:  #避免水平高度不變
+                    ans.append([i,check(i)[0]])
+                    nowh=check(i)[0]
+                if check(i)[0]==0:  #處理沒有連接的部分
+                    nowh=0
+                    nowp=nextp(i)
+                    nowe=b[nowp][1]
+        return ans
+        
+        
+        可以看的出是非常冗長的 因為有點像是見到洞補洞的狀況
+        所以知後參考了youtube的影片來改善寫法 首先最大的不同是 他只考慮大樓的邊邊 所以不用全部都掃過 原本的O(max[b[:][2]]) 瞬間變O(n)
+        我才算理解到這題是divide and conquer的原因
+        後來延著這個思路去解 寫出來發現 好像蠻像一些別人的寫法 可能是思路一樣 
+       
+   class Solution:
+    def getSkyline(self, buildings: List[List[int]]) -> List[List[int]]:
+        events = []
+        for i in buildings:        #此部分紀錄所有的左右端點
+            events.append((0, i[0], i[2]))    #進入為0
+            events.append((1, i[1], i[2]))    #出去為1
+        events = sorted(events, key = lambda x:(x[1], x[0], -x[2] if x[0] == 0 else x[2]))  #針對發生的時間點做排序 且進去先發生 在出去 此外同點進入取高的 出去取低的
+        ans = []
+        height = sortedcontainers.SortedList([0])  #這個容器可以直接幫你把丟進去的數排序 且最低為0(走到底)
+        for e in events:   #走每一個發生的點
+            etype, p, h = e
+            if etype == 0:   #如果是進入
+                if h > height[-1]: #比較是否比目前最高的高
+                    ans.append([p, h])  #是的話加入
+                height.add(h)     #高度都要紀錄
+            else:
+                height.remove(h)   #出去的話移除高度
+                if h > height[-1]: #判斷使否等高 有變低才記
+                    ans.append([p, height[-1]])
+        return ans
+  
+  結論:很好玩的題目 思考了很多 但還是發現寫法都太直接 缺乏整體性 都是遇到洞補洞 需要先把可能的狀況都思考後在實作 程式碼才不會複雜又難讀
