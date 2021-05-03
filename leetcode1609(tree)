@@ -1,0 +1,53 @@
+題目 給予一棵樹測試 
+1.若是偶數層則此層的每一個節點都要是奇數 且右方的兄弟(sibling)需大於自身
+2.若是奇數層則此層的每一個節點都要是偶數 且右方的兄弟(sibling)需小於自身
+
+我的解題思維是一個變數記錄現在層數 一個陣列記錄這一層全部的節點(從左自右) 一個陣列紀錄下一層的節點去且此陣列做符合題目的比對
+
+
+class Solution:
+    def isEvenOddTree(self, root: TreeNode) -> bool:
+        if not root :     #此行做初始條件的檢測
+            return []
+        if root.val%2==0: #此行做初始條件的檢測
+            return False
+        now=[root]        #產生記錄的陣列(當前) 且前面驗證過root不為空
+        nowlevel=0        #紀錄層數用的變數
+        def check(nextA,nowlevel):    #此函數目的在於確認nextA是否都有符合題目的限制
+            if nowlevel%2==0:         #處理偶數的層數
+                if len(nextA)==1:     #處理邊界條件 若只有一個節點則單純做檢測不需做比對
+                    if nextA[0].val%2==0:
+                        return False
+                    return True
+                if nextA[-1].val%2==0: #此部份可以做改進 由於下方比較及確認的方式 會沒有比較到最後一個節點的奇偶 
+                    return False
+                for i in range(len(nextA)-1):   #每個元素的奇偶驗證及比較大小
+                    if nextA[i].val%2==0 or nextA[i].val>=nextA[i+1].val:
+                        return False
+                return True
+            if nowlevel%2==1:    #處理奇數的層數 其內容與偶數大致相同
+                if len(nextA)==1:
+                    if nextA[0].val%2==1:
+                        return False
+                    return True
+                if nextA[-1].val%2==1:
+                    return False
+                for i in range(len(nextA)-1):
+                    if nextA[i].val%2==1 or nextA[i].val<=nextA[i+1].val:
+                         return False  
+                return True        
+
+        while now:     #確認當前層數是否為空 若為空則全部檢查完畢 則返回OK
+            if not check(now,nowlevel):  #確認當前層數是否都符合
+                return False
+            nextA=[]
+            for node in now:   #把下一層的節點加入陣列
+                if node.left:
+                    nextA.append(node.left)
+                if node.right:
+                    nextA.append(node.right)
+            nowlevel+=1  #去做當前層數的增加
+            now=nextA
+        return True
+
+整體而言就是檢驗對樹結構的熟悉程度 並且對內容做確認 當初在寫的時候沒考慮到的部份有 root為空的確認 以及做比較時邊界的確認 是可以做為以後去注意的點
